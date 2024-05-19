@@ -11,7 +11,8 @@ public class SparkJavaElasticStreamTest {
         try {
             System.out.println("Connecting to Elasticsearch...");
             SparkSession spark = SparkSession.builder()
-                .config(ConfigurationOptions.ES_NODES, "0.0.0.0")
+                .config(ConfigurationOptions.ES_NODES_WAN_ONLY, "true")
+                .config(ConfigurationOptions.ES_NODES, "localhost")
                 .config(ConfigurationOptions.ES_PORT, "9200")
                 .appName("StreamingElastic")
                 .master("local[*]")
@@ -20,13 +21,13 @@ public class SparkJavaElasticStreamTest {
             System.out.println("Preparing simple data...");
             var staticDataFrame = spark.read()
                 .option("header", "true")
-                .csv("src/main/resources/test")
+                .csv("dataset")
                 .schema();
 
             Dataset<Row> df = spark.read().format("csv")
                 .option("header", "true")
                 .schema(staticDataFrame)
-                .load("src/main/resources/test");
+                .load("dataset");
 
             String esIndex = "receipt_restaurants/data";
 
