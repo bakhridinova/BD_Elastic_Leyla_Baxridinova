@@ -13,7 +13,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala.version>2.12</scala.version>
-        <spark.version>3.5.0</spark.version> <!-- Use the version of Spark you are working with -->
+        <spark.version>3.1.2</spark.version> <!-- Use the version of Spark you are working with -->
         <elasticsearch.hadoop.version>7.16.1</elasticsearch.hadoop.version> <!-- Use the version compatible with your Elasticsearch -->
     </properties>
 
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.4.12</version>
         </dependency>
 
 
