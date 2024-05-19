@@ -1,0 +1,126 @@
+services:
+  elasticsearch:
+    image: elasticsearch:7.16.1
+    container_name: es
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+  logstash:
+    image: logstash:7.16.1
+    container_name: log
+    environment:
+      discovery.seed_hosts: logstash
+      LS_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - ./logstash/pipeline/logstash-nginx.config:/usr/share/logstash/pipeline/logstash-nginx.config
+      - ./logstash/nginx.log:/home/nginx.log
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+    command: logstash -f /usr/share/logstash/pipeline/logstash-nginx.config
+  kibana:
+    image: kibana:7.16.1
+    container_name: kib
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+#   ---
+#   Windows PowerShell
+#   Copyright (C) Microsoft Corporation. All rights reserved.
+#
+#   Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+#
+#   PS C:\Users\Lenovo\Desktop\BD_Elastic_Leyla_Baxridinova> docker compose up
+#   [+] Running 35/3
+#    ✔ elasticsearch Pulled                                                                                                                                                                                  3354.9s
+#    ✔ logstash Pulled                                                                                                                                                                                       3288.6s
+#    ✔ kibana Pulled                                                                                                                                                                                         2166.2s
+#   [+] Running 1/1
+#    ✘ Network bd_elastic_leyla_baxridinova_bigdata_network  Error                                                                                                                                             15.0s
+#   failed to create network bd_elastic_leyla_baxridinova_bigdata_network: Error response from daemon: plugin "local" not found
+#   PS C:\Users\Lenovo\Desktop\BD_Elastic_Leyla_Baxridinova> docker compose up
+#   [+] Running 4/4
+#    ✔ Network bd_elastic_leyla_baxridinova_default  Created                                                                                                                                                    0.0s
+#    ✔ Container es                                  Created                                                                                                                                                    0.1s
+#    ✔ Container kib                                 Created                                                                                                                                                    0.1s
+#    ✔ Container log                                 Created                                                                                                                                                    0.1s
+#   Attaching to es, kib, log
+#   log  | Using bundled JDK: /usr/share/logstash/jdk
+#   log  | OpenJDK 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+#   Gracefully stopping... (press Ctrl+C again to force)
+#   [+] Stopping 3/3
+#    ✔ Container log  Stopped                                                                                                                                                                                   0.7s
+#    ✔ Container kib  Stopped                                                                                                                                                                                   0.6s
+#    ✔ Container es   Stopped                                                                                                                                                                                   0.4s
+#   PS C:\Users\Lenovo\Desktop\BD_Elastic_Leyla_Baxridinova> docker ps -a
+#   CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS                             PORTS                                                                                            NAMES
+#   2f581b737b07   kibana:7.16.1          "/bin/tini -- /usr/l…"   40 seconds ago   Up 16 seconds                      0.0.0.0:5601->5601/tcp                                                                           kib
+#   264e1808c009   logstash:7.16.1        "/usr/local/bin/dock…"   40 seconds ago   Up 16 seconds                      0.0.0.0:5000->5000/tcp, 0.0.0.0:5044->5044/tcp, 0.0.0.0:9600->9600/tcp, 0.0.0.0:5000->5000/udp   log
+#   6d87bd20cd3e   elasticsearch:7.16.1   "/bin/tini -- /usr/l…"   40 seconds ago   Up 16 seconds (health: starting)   0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp                                                   es
+#
+#   PS C:\Users\Lenovo\Desktop\BD_Elastic_Leyla_Baxridinova> docker inspect bd_elastic_leyla_baxridinova_default
+#   [
+#       {
+#           "Name": "bd_elastic_leyla_baxridinova_default",
+#           "Id": "dd4b26d8eef6e45f91a8690b9e1dee3f46911d083f7aa30c3436f6d9d04fddd7",
+#           "Created": "2024-05-19T07:17:41.837439845Z",
+#           "Scope": "local",
+#           "Driver": "bridge",
+#           "EnableIPv6": false,
+#           "IPAM": {
+#               "Driver": "default",
+#               "Options": null,
+#               "Config": [
+#                   {
+#                       "Subnet": "172.19.0.0/16",
+#                       "Gateway": "172.19.0.1"
+#                   }
+#               ]
+#           },
+#           "Internal": false,
+#           "Attachable": false,
+#           "Ingress": false,
+#           "ConfigFrom": {
+#               "Network": ""
+#           },
+#           "ConfigOnly": false,
+#           "Containers": {
+#               "2f581b737b073fbf446b4425a23f76442fa66ca77ae9210229709b149930406e": {
+#                   "Name": "kib",
+#                   "EndpointID": "396c1875dfd567fd1ab3d2036a15a49612b9a62f9260f4d6a8a3511d7977fc1e",
+#                   "MacAddress": "02:42:ac:13:00:03",
+#                   "IPv4Address": "172.19.0.3/16",
+#                   "IPv6Address": ""
+#               },
+#               "6d87bd20cd3e3f86e67d863e264f57818bbd3151aba0ee6eaec62ad0136a9b04": {
+#                   "Name": "es",
+#                   "EndpointID": "59ba7b8221eb3a5c91b41b448725deb80a1d1e39a4e1a563a47e0bbec6b1ade2",
+#                   "MacAddress": "02:42:ac:13:00:02",
+#                   "IPv4Address": "172.19.0.2/16",
+#                   "IPv6Address": ""
+#               }
+#           },
+#           "Options": {},
+#           "Labels": {
+#               "com.docker.compose.network": "default",
+#               "com.docker.compose.project": "bd_elastic_leyla_baxridinova",
+#               "com.docker.compose.version": "2.27.0"
+#           }
+#       }
+#   ]
+#   PS C:\Users\Lenovo\Desktop\BD_Elastic_Leyla_Baxridinova>
+#   ---
